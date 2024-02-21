@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-import useAuth from '../../hooks/useAuth'
 import { auth } from "../../services/firebaseConfig"
+import useAuth from '../../hooks/useAuth'
 
 export default function Signup() {
-  const { signup } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -20,8 +19,8 @@ export default function Signup() {
     createUserWithEmailAndPassword,
     user,
     loading,
+    errorFirebase,
   ] = useCreateUserWithEmailAndPassword(auth);
-
 
   const handleSignup = () => {
     if (!email || !emailConfirm || !password || !passwordConfirm) {
@@ -33,15 +32,14 @@ export default function Signup() {
       return
     }
 
-    const res = signup(email, password)
-
-    if (res) {
-      setError(res)
-      return
-    }
-
-    navigate("/")
+    createUserWithEmailAndPassword(email, password)
   }
+
+  useEffect(() => {
+    if (user) {
+      navigate("/")
+    }
+  }, [user])
 
 
   return (
@@ -72,10 +70,11 @@ export default function Signup() {
           value={passwordConfirm}
           onChange={e => [setPasswordConfirm(e.target.value), setError("")]}
         />
-        <span className='error'>{error}</span>
+        <span className='error'>{error || errorFirebase?.message}</span>
         <Button
           Text="Inscrever-se"
           onClick={handleSignup}
+          loading={loading}
         />
         <span>
           <span>Já tem uma conta?</span> <strong><Link to="/">Entre</Link></strong>

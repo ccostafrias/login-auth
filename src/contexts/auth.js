@@ -1,70 +1,29 @@
 import { createContext, useEffect, useState } from "react";
-import { useIdToken } from 'react-firebase-hooks/auth';
-
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../services/firebaseConfig"
 
 export const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState()
+    const [
+      user,
+      loading,
+      error
+    ] = useAuthState(auth);
 
-    useEffect(() => {
-        const [user, loading, error] = useIdToken(auth)
-
-        if (user) {
-          setUser(user)
-        }
-    }, [])
-
-    const signin = (email, password) => {
-        const usersStorage = JSON.parse(localStorage.getItem("users_bd"));
-    
-        const hasUser = usersStorage?.filter((user) => user.email === email);
-    
-        if (hasUser?.length) {
-          if (hasUser[0].email === email && hasUser[0].password === password) {
-            const token = Math.random().toString(36).substring(2);
-            localStorage.setItem("user_token", JSON.stringify({ email, token }));
-            setUser({ email, password });
-            return;
-          } else {
-            return "E-mail ou senha incorretos";
-          }
-        } else {
-          return "Usuário não cadastrado";
-        }
-    };
-
-    const signup = (email, password) => {
-        const usersStorage = JSON.parse(localStorage.getItem("users_bd"));
-    
-        const hasUser = usersStorage?.filter((user) => user.email === email);
-    
-        if (hasUser?.length) {
-          return "Já tem uma conta com esse E-mail";
-        }
-    
-        let newUser;
-    
-        if (usersStorage) {
-          newUser = [...usersStorage, { email, password }];
-        } else {
-          newUser = [{ email, password }];
-        }
-    
-        localStorage.setItem("users_bd", JSON.stringify(newUser));
-    
-        return;
-    };
-
-    const signout = () => {
-        setUser(null);
-        localStorage.removeItem("user_token");
-    };
+    if (loading) {
+      return (
+        <h1>Loading...</h1>
+      )
+    }
 
     return (
         <AuthContext.Provider
-          value={{ user, signed: !!user, signin, signup, signout }}
+          value={{ 
+            user, 
+            signed: !!user,
+          }}
         >
           {children}
         </AuthContext.Provider>

@@ -1,16 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Input from '../../components/Input'
 import Button from '../../components/Button'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { auth } from "../../services/firebaseConfig"
 import useAuth from '../../hooks/useAuth'
 
 export default function Signin() {
-  const { signin } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+
+  const [
+    signInWithEmailAndPassword,
+    user,
+    loading,
+    errorFirebase,
+  ] = useSignInWithEmailAndPassword(auth);
 
   const handleLogin = () => {
     if (!email || !password ) {
@@ -18,15 +26,15 @@ export default function Signin() {
       return
     }
 
-    const res = signin(email, password)
-
-    if (res) {
-      setError(res)
-      return
-    }
-
-    navigate("/home")
+    signInWithEmailAndPassword(email, password)
   }
+
+  
+  useEffect(() => {
+    if (user) {
+      navigate("/home")
+    }
+  }, [user])
 
 
   return (
@@ -45,10 +53,11 @@ export default function Signin() {
           value={password}
           onChange={e => (setPassword(e.target.value), setError(""))}
         />
-        <span className='error'>{error}</span>
+        <span className='error'>{error || errorFirebase?.message}</span>
         <Button
           Text="Entrar"
           onClick={handleLogin}
+          loading={loading}
         />
         <span>
           <span>Não tem uma conta?</span> <strong><Link to="/signup">Registre-se</Link></strong>

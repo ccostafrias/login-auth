@@ -1,16 +1,18 @@
 import React from 'react'
 import Button from '../../components/Button'
-import useAuth from '../../hooks/useAuth'
+import { useSignOut } from 'react-firebase-hooks/auth';
+import { auth } from '../../services/firebaseConfig';
 
 export default function Home() {
-  const { signout } = useAuth()
+  const [signOut, loading, error] = useSignOut(auth);
 
   return (
     <main className='container'>
       <h1>Home</h1>
       <Button 
         Text="Sair"
-        onClick={signout}
+        onClick={() => signOut()}
+        loading={loading}
       />
     </main>
   )

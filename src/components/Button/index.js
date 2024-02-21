@@ -5,14 +5,18 @@ export default function Button(props) {
         Text, 
         onClick, 
         Type = "button",
+        loading = false,
     } = props
 
     return (
         <button
             type={Type}
             onClick={onClick}
+            style={{
+                opacity: loading ? .75 : 1,
+            }}
         >
-            {Text}
+            {loading ? "Loading..." : Text}
         </button>
     )
 }
