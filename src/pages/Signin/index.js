@@ -4,7 +4,6 @@ import Button from '../../components/Button'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from "../../services/firebaseConfig"
-import useAuth from '../../hooks/useAuth'
 
 export default function Signin() {
   const navigate = useNavigate()
